@@ -5,13 +5,17 @@ inputs:
       Jira integration webhook URL.
       Store it as a secret as anyone who has access to it will be able to post to your Jira board.
     required: true
+  webhook-secret:
+    description: >
+      Jira webhook secret.
+    required: true
   component:
     description: "Jira component to attach your issue to. This component should exists in your project."
     required: false
   label:
     description: "Label which will trigger a Jira import."
     required: true
-    default: "jira"
+    default: "enhancement"
 
 runs:
   using: "composite"
@@ -134,6 +138,6 @@ runs:
                   --arg component "$component" \
                   --arg commentContent "$commentContent" \
                   '{data: {id: $id, action: $action, title: $title, description: $description, component: $component, commentContent: $commentContent}}')
-        curl -X POST -H 'Content-type: application/json' --data "${data}" '${{ inputs.webhook-url }}'
+        curl -X POST -H 'Content-type: application/json' -H 'X-Automation-Webhook-Token: ${{ inputs.webhook-secret}}' --data "${data}" '${{ inputs.webhook-url }}'
 
       shell: bash
